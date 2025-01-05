@@ -29,9 +29,11 @@ const questions = [
     answer: "Ottawa",
   },
 ];
-
+let userAnswers = JSON.parse(sessionStorage.getItem("userAnswers")) || new Array(questions.length).fill(null);
 // Display the quiz questions and choices
 function renderQuestions() {
+	const questionsElement = document.getElementById("questions");
+  questionsElement.innerHTML = '';
   for (let i = 0; i < questions.length; i++) {
     const question = questions[i];
     const questionElement = document.createElement("div");
@@ -46,6 +48,10 @@ function renderQuestions() {
       if (userAnswers[i] === choice) {
         choiceElement.setAttribute("checked", true);
       }
+		choiceElement.addEventListener('change', () => {
+        userAnswers[i] = choice;
+        sessionStorage.setItem("userAnswers", JSON.stringify(userAnswers)); // Store answers in session storage
+      });
       const choiceText = document.createTextNode(choice);
       questionElement.appendChild(choiceElement);
       questionElement.appendChild(choiceText);
@@ -53,4 +59,23 @@ function renderQuestions() {
     questionsElement.appendChild(questionElement);
   }
 }
+function calculateScore() {
+  let score = 0;
+  for (let i = 0; i < questions.length; i++) {
+    if (userAnswers[i] === questions[i].answer) {
+      score++;
+    }
+  }
+  
+  const scoreElement = document.getElementById("score");
+  scoreElement.textContent = `Your score is ${score} out of ${questions.length}.`;
+
+  // Store score in local storage
+  localStorage.setItem("score", score);
+}
+
+// Submit button functionality
+document.getElementById("submit").addEventListener("click", () => {
+  calculateScore();
+});
 renderQuestions();
